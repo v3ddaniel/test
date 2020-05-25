@@ -1,0 +1,147 @@
+<html><head>
+	<meta http-equiv="Content-type" content="charset=UTF-8" />
+	<meta name="format-detection" content="telephone=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="viewport" content="width=device-width, height=device-height, user-scalable=yes" />
+	<title>Random</title>
+	<style>
+	table {
+		border-collapse: collapse;
+		border: 0;
+	}
+	div {
+		vertical-align: top; 
+	}
+	fieldset {
+		float: left;
+	}
+	label, input {
+		display: block;
+	}
+	td {
+		width: 10px;
+		height: 10px;
+		background-color: black;
+		padding: 0;
+	}
+	#rnd {
+		display: inline-block;
+		text-align: center;
+	}
+	</style>
+	<script type="text/javascript">
+// var tim1 = setInterval( function() { ajax( '?pg=all' ); }, 300000 );
+var Random = Random || {
+	cell: [],
+	run: false,
+	
+	htm : {
+		div:	null,
+	},
+	
+	init: function() {
+		Random.frm = document.getElementsByTagName("form")[0];
+		Random.htm.div = document.getElementById( "rnd" );
+		Random.start();
+	},
+	
+	val: function() {
+		var value = {};
+		value.x  = parseInt( Random.frm.x.value );
+		value.y  = parseInt( Random.frm.y.value );
+		value.it = parseInt( Random.frm.it.value );
+		value.mx = parseInt( Random.frm.mx.value );
+		value.sp = parseInt( Random.frm.sp.value );
+		value.i  = 0;
+		Random.value = value;
+	},
+	
+	runStart: function() {
+		Random.interval = setInterval( Random.rnd, Random.value.sp );
+		Random.run = true;
+	},
+	
+	runStop: function() {
+		clearInterval( Random.interval );
+		Random.run = false;
+	},
+	
+	pause: function() {
+		if ( Random.run )
+			Random.runStop();
+		else
+			Random.runStart();
+	},
+	
+	start: function() {
+		var x, y, tr, td, tbl;
+		Random.val();
+		Random.htm.div.innerHTML = "";
+		Random.cell = [];
+		Random.htm.it = document.createElement( "div" );
+		Random.htm.div.appendChild( Random.htm.it );
+		tbl = document.createElement( "table" );
+		Random.htm.div.appendChild( tbl );
+		
+		for ( y = 0 ; y < Random.value.y ; y++ ) {
+			tr = document.createElement( "tr" );
+			tbl.appendChild( tr );
+			for ( x = 0 ; x < Random.value.x ; x++ ) {
+				td = document.createElement( "td" );
+				td.title = "0";
+// 				td.innerHTML = "&nbsp;";
+				tr.appendChild( td );
+				Random.cell.push( td );
+			}
+		}
+		Random.runStart();
+	},
+	
+	getValue: function( cell ) {
+		return parseInt( cell.title );
+	},
+	
+	setValue: function( cell, value ) {
+		cell.title = value;
+		value = Math.floor( 256 * value / Random.value.mx );
+		cell.style.backgroundColor = "blue";
+ 		setTimeout( function() { cell.style.backgroundColor = "rgb(" + value + "," + value + "," + value + ")" }, Random.value.sp );
+	},
+	
+	rnd: function() {
+		Random.htm.it.innerHTML = ++Random.value.i;
+		var cell = Random.cell[ Math.floor( Math.random() * Random.cell.length ) ];
+		var val  = Math.floor( Math.random() * 10 ) + Random.getValue( cell );
+		Random.setValue( cell, val );
+		
+		if ( val > Random.value.mx || Random.value.i >= Random.value.it ) {
+			Random.runStop();
+		}
+	},
+}
+
+window.onload  = function() {
+	Random.init();
+}
+	</script>
+</head>
+<body>
+<form name="in" onsubmiut="return false">
+	<fieldset><legend>Random</legend>
+	<label for="x">X</label>
+	<input type="text" name="x" value="10">
+	<label for="Y">Y</label>
+	<input type="text" name="y" value="10">
+	<label for="it">Iterationer</label>
+	<input type="text" name="it" value="5000">
+	<label for="mx">Max</label>
+	<input type="text" name="mx" value="255">
+	<label for="sp">Delay</label>
+	<input type="text" name="sp" value="50">
+	<input type="button" value="Start" name="st" onclick="Random.start()">
+	<input type="button" value="Stop" name="st" onclick="Random.runStop()">
+	</fieldset>
+</form>
+<div id="rnd"></div>
+</body></html>
+
